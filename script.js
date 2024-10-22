@@ -1,57 +1,60 @@
-// TODO: Implement the password generation logic based on user input
-
-const generatePassword = (length, options) => {
+export const generatePassword = (length, options) => {
     // Character sets for password generation
     const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const lowercase = "abcdefghijklmnopqrstuvwxyz";
     const numbers = "0123456789";
     const specialChars = "!@#$%^&*()";
 
-    let characterSet = "";
+    // Variable to hold selected character set
+    let charSet = "";
 
-    if (options.includeUppercase) characterSet += uppercase;
-    if (options.includeLowercase) characterSet += lowercase;
-    if (options.includeNumbers) characterSet += numbers;
-    if (options.includeSpecialChars) characterSet += specialChars;
+    // TODO: generate the password based on the selected criteria 
+    if (options.includeUppercase) charSet += uppercase;
+    if (options.includeLowercase) charSet += lowercase;
+    if (options.includeNumbers) charSet += numbers;
+    if (options.includeSpecialChars) charSet += specialChars;
 
-    if (characterSet === "") {
-        alert("Please select at least one character option!");
-        return "";
+    if (charSet === "") {
+        throw new Error("At least one character type must be selected.");
     }
 
     let password = "";
-    for (let i = 0; i < length; i++) {
-        const randomIndex = Math.floor(Math.random() * characterSet.length);
-        password += characterSet[randomIndex];
+
+    // Pastikan setidaknya satu karakter dari setiap jenis karakter yang dipilih muncul dalam password
+    if (options.includeUppercase) password += getRandomChar(uppercase);
+    if (options.includeLowercase) password += getRandomChar(lowercase);
+    if (options.includeNumbers) password += getRandomChar(numbers);
+    if (options.includeSpecialChars) password += getRandomChar(specialChars);
+
+    // Sisa karakter dalam password diisi dengan karakter acak dari charSet
+    for (let i = password.length; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * charSet.length);
+        password += charSet[randomIndex];
     }
+
+    // Acak password untuk memastikan karakter tidak muncul dalam urutan yang sama
+    password = shuffleString(password);
 
     return password;
 };
 
+// Fungsi untuk mendapatkan karakter acak dari string
+function getRandomChar(str) {
+    const randomIndex = Math.floor(Math.random() * str.length);
+    return str[randomIndex];
+}
 
-document.getElementById('generateBtn').addEventListener('click', () => {
-    const length = parseInt(document.getElementById('length').value, 10);
-    const options = {
-        includeUppercase: document.getElementById('includeUppercase').checked,
-        includeLowercase: document.getElementById('includeLowercase').checked,
-        includeNumbers: document.getElementById('includeNumbers').checked,
-        includeSpecialChars: document.getElementById('includeSpecialChars').checked,
-    };
+// Fungsi untuk mengacak string
+function shuffleString(str) {
+    let arr = str.split('');
+    let n = arr.length;
 
-    const password = generatePassword(length, options);
-    document.getElementById('passwordOutput').textContent = password; // Display the password
-});
-
-
-document.getElementById('copyBtn').addEventListener('click', () => {
-    const passwordOutput = document.getElementById('passwordOutput').textContent;
-    if (passwordOutput) {
-        navigator.clipboard.writeText(passwordOutput).then(() => {
-            alert('Password copied to clipboard!');
-        }).catch(err => {
-            console.error('Could not copy text: ', err);
-        });
-    } else {
-        alert('No password to copy!');
+    for(let i = n - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        let tmp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = tmp;
     }
-});
+
+    return arr.join('');
+}
